@@ -1,0 +1,119 @@
+@charset "utf-8";
+
+// Define defaults for each variable.
+
+$base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
+$base-font-size:   16px !default;
+$base-font-weight: 400 !default;
+$small-font-size:  $base-font-size * 0.875 !default;
+$base-line-height: 1.5 !default;
+
+$spacing-unit:     30px !default;
+
+// $text-color:       #111 !default;
+// $background-color: #fdfdfd !default;
+// $brand-color:      #2a7ae2 !default;
+$text-color:       #eeeeee !default;
+$background-color: #1e1e1e !default;
+$brand-color:      #ff5c57 !default; // 강조색
+
+
+$grey-color:       #828282 !default;
+$grey-color-light: lighten($grey-color, 40%) !default;
+$grey-color-dark:  darken($grey-color, 25%) !default;
+
+$table-text-align: left !default;
+
+// Width of the content area
+$content-width:    800px !default;
+
+$on-palm:          600px !default;
+$on-laptop:        800px !default;
+
+// Use media queries like this:
+// @include media-query($on-palm) {
+//   .wrapper {
+//     padding-right: $spacing-unit / 2;
+//     padding-left: $spacing-unit / 2;
+//   }
+// }
+@mixin media-query($device) {
+  @media screen and (max-width: $device) {
+    @content;
+  }
+}
+
+@mixin relative-font-size($ratio) {
+  font-size: $base-font-size * $ratio;
+}
+
+// Import partials.
+@import
+  "minima/base",
+  "minima/layout",
+  "minima/syntax-highlighting"
+;
+
+//sidebar.html
+.sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+  padding: 1rem;
+  width: 200px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-title {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar-nav li {
+  margin-bottom: 0.5rem;
+}
+.sidebar-nav a {
+  color: #007acc;
+  text-decoration: none;
+}
+.sidebar-nav a:hover {
+  text-decoration: underline;
+}
+
+.profile {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #eeeeee;
+}
+
+.profile-pic {
+  width: 100px;
+  height: 100px;
+  aspect-ratio: 1 / 1;        // 비율 유지 (브라우저 호환을 위해 추가)
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #444;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); 
+  margin-bottom: 0.5rem;
+}
+
+
+.profile-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff5c57;
+}
+
+.profile-desc {
+  font-size: 0.9rem;
+  color: #cccccc;
+}
+
+
