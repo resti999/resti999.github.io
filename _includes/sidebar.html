@@ -1,15 +1,97 @@
 <div class="sidebar">
-    <h2 class="sidebar-title"></h2>
-    <div class="profile">
-      <img src="{{ site.baseurl }}/assets/images/profile.jpg" alt="Profile Picture" class="profile-pic">
-      <h3 class="profile-name">SPOOKEY</h3>    
-      <p class="profile-desc">물류시스템개발자</p>
-    </div>
-    
-    <ul class="sidebar-nav">
-      <li><a href="{{ '/' | relative_url }}">🏠 Home</a></li>
-      <li><a href="{{ '/categories/' | relative_url }}">📚 Categories</a></li>
-      <li><a href="{{ '/tags/' | relative_url }}">🏷 Tags</a></li>
-      <li><a href="{{ '/about/' | relative_url }}">👤 About</a></li>
-    </ul>
+  <h2 class="sidebar-title"></h2>
+  <div class="profile">
+    <img src="{{ site.baseurl }}/assets/images/profile.jpg" alt="Profile Picture" class="profile-pic">
+    <h3 class="profile-name">SPOOKEY</h3>
+    <p class="profile-desc">물류시스템개발자</p>
   </div>
+
+  <ul class="sidebar-nav">
+    <li><a href="{{ '/' | relative_url }}">🏠 Home</a></li>
+
+    <!-- Categories with dropdown -->
+    <li class="has-submenu">
+      <a href="{{ '/categories/' | relative_url }}">📚 Categories</a>
+      <ul class="submenu">
+        {% assign sorted_categories = site.categories | sort %}
+        {% assign current_level1 = "" %}
+        {% assign current_level2 = "" %}
+
+        {% for cat in sorted_categories %}
+          {% assign parts = cat[0] | split: "/" %}
+          {% assign level1 = parts[0] %}
+          {% assign level2 = parts[1] %}
+          {% assign level3 = parts[2] %}
+
+          {% if level1 != current_level1 %}
+            {% if current_level1 != "" %}
+              {% if current_level2 != "" %}</ul>{% endif %}
+              </ul>
+            </li>
+            {% assign current_level2 = "" %}
+            {% endif %}
+
+            <li class="submenu-item has-submenu">
+              <a href="{{ '/#' | append: level1 | relative_url }}">{{ level1 }}</a>
+              {% assign current_level1 = level1 %}
+              <ul class="submenu">
+          {% endif %}
+
+          {% if level2 and level2 != current_level2 %}
+            {% if current_level2 != "" %}</ul>{% endif %}
+            <li class="submenu-item has-submenu">
+              <a href="{{ '/#' | append: level1 | append: '/' | append: level2 | relative_url }}">{{ level2 }}</a>
+              {% assign current_level2 = level2 %}
+              <ul class="submenu">
+          {% endif %}
+
+          {% if level3 %}
+            <li class="submenu-item">
+              <a href="{{ '/#' | append: level1 | append: '/' | append: level2 | append: '/' | append: level3 | relative_url }}">
+                {{ level3 }}
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+        {% if current_level2 != "" %}</ul>{% endif %}
+        {% if current_level1 != "" %}</ul>{% endif %}
+      </ul>
+    </li>
+
+    <!-- <li><a href="{{ '/tags/' | relative_url }}">🏷 Tags</a></li> -->
+    <li><a href="{{ '/about/' | relative_url }}">👤 About</a></li>
+  </ul>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const items = document.querySelectorAll(".sidebar-nav li.has-submenu");
+  
+    items.forEach(item => {
+      const link = item.querySelector("a");
+      const submenu = item.querySelector(".submenu");
+      const id = link.href;
+  
+      // 복원
+      if (localStorage.getItem("openCategory") === id) {
+        item.classList.add("open");
+      }
+  
+      // 이벤트 등록
+      item.addEventListener("mouseenter", () => {
+        item.classList.add("open");
+        localStorage.setItem("openCategory", id);
+      });
+  
+      item.addEventListener("mouseleave", () => {
+        // 부드럽게 닫기: 시간이 지난 후 class 제거
+        setTimeout(() => {
+          if (!item.matches(":hover")) {
+            item.classList.remove("open");
+            localStorage.removeItem("openCategory");
+          }
+        }, 300); // 닫기 지연 시간
+      });
+    });
+  });
+  </script>

@@ -10,10 +10,10 @@ layout: default
   {{ content }}
 
   {%- if site.posts.size > 0 -%}
-    <h2 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h2>
-    <ul class="post-list">
+    <!-- <h2 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h2> -->
+    <ul class="post-list" id="post-list">
       {%- for post in site.posts -%}
-      <li>
+      <li class="post-item" data-categories="{{ post.categories | join: ',' }}">
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
         <span class="post-meta">{{ post.date | date: date_format }}</span>
         <h3>
@@ -28,7 +28,117 @@ layout: default
       {%- endfor -%}
     </ul>
 
+    <div id="no-posts-message" class="no-posts" style="display: none;">
+      <p>No posts found in this category.</p>
+      <a href="#" onclick="clearFilter(); return false;">Show all posts</a>
+    </div>
+
     <!-- <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p> -->
   {%- endif -%}
+
+  <script>
+  (function() {
+    'use strict';
+
+    const postList = document.getElementById('post-list');
+    const noPostsMessage = document.getElementById('no-posts-message');
+
+    if (!postList) return;
+
+    const postItems = Array.from(document.querySelectorAll('.post-item'));
+
+    // Parse current hash on page load
+    function getCurrentCategory() {
+      const hash = window.location.hash;
+      return hash ? decodeURIComponent(hash.substring(1)) : null;
+    }
+
+    // Hierarchical category matching
+    function matchesCategory(postCategories, filterCategory) {
+      if (!filterCategory) return true;
+
+      // Check if any post category matches or is a child of the filter
+      return postCategories.some(cat => {
+        // Exact match
+        if (cat === filterCategory) return true;
+
+        // Child category match (e.g., filter "jekyll" matches "jekyll/update")
+        if (cat.startsWith(filterCategory + '/')) return true;
+
+        return false;
+      });
+    }
+
+    // Apply filter based on category
+    function applyFilter(category) {
+      let visibleCount = 0;
+
+      postItems.forEach(item => {
+        const categoriesAttr = item.getAttribute('data-categories');
+        const postCategories = categoriesAttr ? categoriesAttr.split(',') : [];
+
+        if (matchesCategory(postCategories, category)) {
+          item.style.display = '';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      // Show/hide empty state
+      if (visibleCount === 0 && category) {
+        noPostsMessage.style.display = 'block';
+      } else {
+        noPostsMessage.style.display = 'none';
+      }
+
+      // Update sidebar highlighting
+      updateSidebarHighlight(category);
+    }
+
+    // Update sidebar to highlight active category
+    function updateSidebarHighlight(category) {
+      // Remove all existing active classes
+      document.querySelectorAll('.sidebar-nav a.active-category').forEach(link => {
+        link.classList.remove('active-category');
+      });
+
+      // Add active class to matching category link
+      if (category) {
+        // Find links that match the category (handle both /#category and #category formats)
+        const allLinks = document.querySelectorAll('.sidebar-nav a[href*="#"]');
+        allLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          // Extract category from href (handle /#category format)
+          const hashIndex = href.indexOf('#');
+          if (hashIndex !== -1) {
+            const linkCategory = href.substring(hashIndex + 1);
+            if (linkCategory === category) {
+              link.classList.add('active-category');
+            }
+          }
+        });
+      }
+    }
+
+    // Clear filter and show all posts
+    window.clearFilter = function() {
+      window.location.hash = '';
+      applyFilter(null);
+    };
+
+    // Handle hash changes
+    function handleHashChange() {
+      const category = getCurrentCategory();
+      applyFilter(category);
+    }
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Initial filter on page load
+    handleHashChange();
+  })();
+  </script>
 
 </div>
